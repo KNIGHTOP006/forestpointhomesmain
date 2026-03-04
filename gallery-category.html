@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forest Point Homes | Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --forest: #1e3a2f;
+  --deep-forest: #12271f;
+  --sage: #8aab8e;
+  --sand: #f5f0e8;
+  --terracotta: #c4714a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Jost', sans-serif;
+  background: radial-gradient(circle at 20% 0%, #274839, var(--deep-forest));
+  color: var(--sand);
+}
+.page {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.back-btn {
+  border: 1px solid rgba(245,240,232,0.35);
+  background: rgba(245,240,232,0.08);
+  color: var(--sand);
+  padding: 0.55rem 1rem;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  border-radius: 3px;
+  font-size: 0.9rem;
+}
+.back-btn:hover { background: rgba(245,240,232,0.14); }
+.title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin: 0.4rem 0 0.2rem;
+}
+.subtitle {
+  margin: 0 0 1.4rem;
+  color: rgba(245,240,232,0.75);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.card {
+  margin: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(245,240,232,0.05);
+  border: 1px solid rgba(245,240,232,0.12);
+}
+.card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+.card figcaption {
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: rgba(245,240,232,0.82);
+  padding: 0.5rem 0.7rem 0.65rem;
+}
+.empty {
+  display: none;
+  margin-top: 1.4rem;
+  padding: 1rem;
+  border: 1px dashed rgba(245,240,232,0.3);
+  color: rgba(245,240,232,0.88);
+  background: rgba(245,240,232,0.05);
+}
+@media (max-width: 640px) {
+  .topbar { flex-direction: column; align-items: flex-start; }
+  .card img { height: 190px; }
+}
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <a class="back-btn" href="forest-point-homes copy.html#gallery">Open Main Gallery</a>
+    </div>
+
+    <h1 class="title" id="galleryTitle">Gallery</h1>
+    <p class="subtitle" id="gallerySubtitle">Category photos from Forest Point Homes.</p>
+
+    <section class="grid" id="photoGrid"></section>
+    <div class="empty" id="emptyState">No images found in this category yet. Add files in the folder shown above and refresh.</div>
+  </div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const category = (params.get('type') || 'forest-views').trim();
+const rawTitle = (params.get('title') || 'Gallery').trim();
+const safeTitle = rawTitle || 'Gallery';
+
+document.title = `Forest Point Homes | ${safeTitle}`;
+document.getElementById('galleryTitle').textContent = safeTitle;
+document.getElementById('gallerySubtitle').textContent = `Photos for ${safeTitle}.`;
+const grid = document.getElementById('photoGrid');
+const emptyState = document.getElementById('emptyState');
+
+function imageExists(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = src;
+  });
+}
+
+async function loadCategoryImages() {
+  const exts = ['jpg', 'jpeg', 'png', 'webp'];
+  const maxFiles = 30;
+  const found = [];
+
+  for (let i = 1; i <= maxFiles; i++) {
+    let matched = null;
+    for (const ext of exts) {
+      const src = `gallery-images/${category}/${i}.${ext}`;
+      const ok = await imageExists(src);
+      if (ok) {
+        matched = src;
+        break;
+      }
+    }
+    if (matched) found.push({ index: i, src: matched });
+  }
+
+  if (!found.length) {
+    emptyState.style.display = 'block';
+    return;
+  }
+
+  found.forEach(item => {
+    const fig = document.createElement('figure');
+    fig.className = 'card';
+
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.alt = `${safeTitle} photo ${item.index}`;
+    img.src = item.src;
+
+    const cap = document.createElement('figcaption');
+    cap.textContent = `${safeTitle} #${item.index}`;
+
+    fig.appendChild(img);
+    fig.appendChild(cap);
+    grid.appendChild(fig);
+  });
+}
+
+loadCategoryImages();
+</script>
+</body>
+</html>
