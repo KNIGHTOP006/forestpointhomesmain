@@ -151,6 +151,18 @@ section { padding: 7rem 5%; }
 .gi-7 { grid-column: 1/4; grid-row: 3/4; }
 .gi-8 { grid-column: 4/6; grid-row: 3/4; }
 .gi-9 { grid-column: 6/9; grid-row: 3/4; }
+.inline-gallery { margin-top: 1.25rem; padding: 1.25rem; border: 1px solid #d9cbb6; border-radius: 4px; background: var(--cream); }
+.inline-gallery[hidden] { display: none; }
+.inline-gallery-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.4rem; }
+.inline-gallery-title { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--forest); }
+.inline-gallery-close { border: 1px solid rgba(30,58,47,0.25); background: transparent; color: var(--forest); font-family: 'Jost', sans-serif; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; padding: 0.5rem 0.75rem; cursor: pointer; border-radius: 2px; }
+.inline-gallery-close:hover { background: rgba(30,58,47,0.06); }
+.inline-gallery-subtitle { font-size: 0.8rem; color: var(--text-light); margin-bottom: 1rem; }
+.inline-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.inline-gallery-card { margin: 0; border: 1px solid #dfd4c2; border-radius: 3px; overflow: hidden; background: var(--warm-white); }
+.inline-gallery-card img { display: block; width: 100%; height: 190px; object-fit: cover; }
+.inline-gallery-card figcaption { padding: 0.45rem 0.6rem 0.6rem; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-light); }
+.inline-gallery-empty { display: none; border: 1px dashed #ccbda6; background: var(--warm-white); color: var(--text-light); padding: 0.8rem; font-size: 0.85rem; }
 .ideal { background: var(--sand); position: relative; overflow: hidden; }
 .ideal::before { content: ''; position: absolute; inset: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b8966a' fill-opacity='0.07'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
 .ideal-inner { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
@@ -383,6 +395,15 @@ footer { background: var(--dark); color: rgba(245,240,232,0.5); text-align: cent
         <svg class="gallery-thumb" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g9" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8a4a2f"/><stop offset="100%" style="stop-color:#b8966a"/></linearGradient></defs><rect width="300" height="180" fill="url(#g9)"/><text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" fill="rgba(245,240,232,0.85)" font-size="38">🏡</text><text x="50%" y="80%" text-anchor="middle" fill="rgba(245,240,232,0.5)" font-family="Jost,sans-serif" font-size="9" letter-spacing="2">VERANDA</text></svg>
         <div class="gallery-overlay"><span>Veranda & Lawn</span></div>
       </div>
+    </div>
+    <div class="inline-gallery" id="inlineGallery" hidden>
+      <div class="inline-gallery-top">
+        <h3 class="inline-gallery-title" id="inlineGalleryTitle">Gallery</h3>
+        <button class="inline-gallery-close" type="button" id="inlineGalleryClose">Close</button>
+      </div>
+      <p class="inline-gallery-subtitle" id="inlineGallerySubtitle">Category photos from Forest Point Homes.</p>
+      <div class="inline-gallery-empty" id="inlineGalleryEmpty">No photos uploaded yet for this category.</div>
+      <div class="inline-gallery-grid" id="inlineGalleryGrid"></div>
     </div>
   </div>
 </section>
@@ -635,11 +656,70 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 
+const GALLERY_IMAGE_MANIFEST = {
+  'architecture': ['1.JPG', '2.JPG', '3.JPG', '4.JPG', '5.jpg', '6.jpg', '7.jpg', '8.jpg'],
+  'forest-views': ['1.jpg', '2.jpg', '3.JPG', '4.JPG'],
+  'interiors': ['1.jpg', '2.JPG', '3.JPG', '4.JPG', '5.jpg', '6.JPG', '7.JPG', '8.jpg', '9.jpg', '10.jpg', '11.jpg'],
+  'kitchen': ['1.JPG', '2.jpg', '3.JPG'],
+  'lotus-pond': [],
+  'night-skies': [],
+  'trekking-trail': [],
+  'veranda-lawn': ['1.jpg', '2.JPG', '3.jpg'],
+  'waterfall': []
+};
+
+const inlineGallery = document.getElementById('inlineGallery');
+const inlineGalleryTitle = document.getElementById('inlineGalleryTitle');
+const inlineGallerySubtitle = document.getElementById('inlineGallerySubtitle');
+const inlineGalleryGrid = document.getElementById('inlineGalleryGrid');
+const inlineGalleryEmpty = document.getElementById('inlineGalleryEmpty');
+const inlineGalleryClose = document.getElementById('inlineGalleryClose');
+
+function openInlineGallery(category, title) {
+  const files = GALLERY_IMAGE_MANIFEST[category] || [];
+  inlineGalleryTitle.textContent = title;
+  inlineGallerySubtitle.textContent = `Photos for ${title}.`;
+  inlineGalleryGrid.innerHTML = '';
+
+  if (!files.length) {
+    inlineGalleryEmpty.style.display = 'block';
+  } else {
+    inlineGalleryEmpty.style.display = 'none';
+    files.forEach((fileName, idx) => {
+      const fig = document.createElement('figure');
+      fig.className = 'inline-gallery-card';
+
+      const img = document.createElement('img');
+      img.loading = idx < 4 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+      if (idx === 0) img.fetchPriority = 'high';
+      img.alt = `${title} photo ${idx + 1}`;
+      img.src = `gallery-images/${category}/${fileName}`;
+
+      const cap = document.createElement('figcaption');
+      cap.textContent = `${title} #${idx + 1}`;
+
+      fig.appendChild(img);
+      fig.appendChild(cap);
+      inlineGalleryGrid.appendChild(fig);
+    });
+  }
+
+  inlineGallery.hidden = false;
+  inlineGallery.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+if (inlineGalleryClose) {
+  inlineGalleryClose.addEventListener('click', () => {
+    inlineGallery.hidden = true;
+  });
+}
+
 document.querySelectorAll('.gallery-item[data-gallery]').forEach(item => {
   const openGallery = () => {
     const type = item.dataset.gallery;
     const title = item.dataset.galleryTitle || 'Gallery';
-    window.location.href = `gallery-category.html?type=${encodeURIComponent(type)}&title=${encodeURIComponent(title)}`;
+    openInlineGallery(type, title);
   };
   item.addEventListener('click', openGallery);
   item.addEventListener('keydown', e => {
