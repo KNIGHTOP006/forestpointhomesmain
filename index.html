@@ -304,7 +304,7 @@ footer { background: var(--dark); color: rgba(245,240,232,0.5); text-align: cent
     </div>
     <div class="about-visual reveal reveal-delay-2">
       <div class="about-card about-card-main">
-        <img class="about-main-image" src="media/about/about-main.jpg" alt="Forest Point Homes exterior view">
+        <img class="about-main-image" src="media/about/about-main.JPG" alt="Forest Point Homes exterior view">
         <div class="about-main-overlay"></div>
         <div style="position:relative;z-index:1">
           <div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:rgba(245,240,232,0.9);margin-bottom:0.3rem;font-style:italic">A stay unlike any other</div>
@@ -650,34 +650,26 @@ document.querySelectorAll('.gallery-item[data-gallery]').forEach(item => {
   });
 });
 
-async function loadGalleryTileThumbs() {
-  const exts = ['jpg', 'jpeg', 'png', 'webp'];
+const GALLERY_TILE_COVERS = {
+  'architecture': 'gallery-images/architecture/1.JPG',
+  'forest-views': 'gallery-images/forest-views/1.jpg',
+  'interiors': 'gallery-images/interiors/1.jpg',
+  'kitchen': 'gallery-images/kitchen/1.JPG',
+  'veranda-lawn': 'gallery-images/veranda-lawn/1.jpg'
+};
+
+function loadGalleryTileThumbs() {
   const items = document.querySelectorAll('.gallery-item[data-gallery]');
-  const imageExists = src => new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = src;
-  });
 
   for (const item of items) {
     const category = item.dataset.gallery;
-    if (!category) continue;
-
-    let foundSrc = null;
-    for (const ext of exts) {
-      const candidate = `gallery-images/${category}/1.${ext}`;
-      if (await imageExists(candidate)) {
-        foundSrc = candidate;
-        break;
-      }
-    }
-
+    const foundSrc = GALLERY_TILE_COVERS[category];
     if (!foundSrc) continue;
 
     const realThumb = document.createElement('img');
     realThumb.className = 'gallery-thumb gallery-real-thumb';
     realThumb.loading = 'lazy';
+    realThumb.decoding = 'async';
     realThumb.alt = `${item.dataset.galleryTitle || 'Gallery'} thumbnail`;
     realThumb.src = foundSrc;
     item.prepend(realThumb);

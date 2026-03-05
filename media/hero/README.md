@@ -1,1 +1,0 @@
-Place your hero video here as: hero-background.mp4

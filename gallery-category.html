@@ -95,7 +95,7 @@ body {
 <body>
   <div class="page">
     <div class="topbar">
-      <a class="back-btn" href="forest-point-homes copy.html#gallery">Open Main Gallery</a>
+      <a class="back-btn" href="index.html#gallery">Open Main Gallery</a>
     </div>
 
     <h1 class="title" id="galleryTitle">Gallery</h1>
@@ -117,49 +117,40 @@ document.getElementById('gallerySubtitle').textContent = `Photos for ${safeTitle
 const grid = document.getElementById('photoGrid');
 const emptyState = document.getElementById('emptyState');
 
-function imageExists(src) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = src;
-  });
-}
+const GALLERY_IMAGE_MANIFEST = {
+  'architecture': ['1.JPG', '2.JPG', '3.JPG', '4.JPG', '5.jpg', '6.jpg', '7.jpg', '8.jpg'],
+  'forest-views': ['1.jpg', '2.jpg', '3.JPG', '4.JPG'],
+  'interiors': ['1.jpg', '2.JPG', '3.JPG', '4.JPG', '5.jpg', '6.JPG', '7.JPG', '8.jpg', '9.jpg', '10.jpg', '11.jpg'],
+  'kitchen': ['1.JPG', '2.jpg', '3.JPG'],
+  'lotus-pond': [],
+  'night-skies': [],
+  'trekking-trail': [],
+  'veranda-lawn': ['1.jpg', '2.JPG', '3.jpg'],
+  'waterfall': []
+};
 
 async function loadCategoryImages() {
-  const exts = ['jpg', 'jpeg', 'png', 'webp'];
-  const maxFiles = 30;
-  const found = [];
+  const files = GALLERY_IMAGE_MANIFEST[category] || [];
 
-  for (let i = 1; i <= maxFiles; i++) {
-    let matched = null;
-    for (const ext of exts) {
-      const src = `gallery-images/${category}/${i}.${ext}`;
-      const ok = await imageExists(src);
-      if (ok) {
-        matched = src;
-        break;
-      }
-    }
-    if (matched) found.push({ index: i, src: matched });
-  }
-
-  if (!found.length) {
+  if (!files.length) {
     emptyState.style.display = 'block';
     return;
   }
 
-  found.forEach(item => {
+  files.forEach((fileName, idx) => {
+    const photoNumber = idx + 1;
     const fig = document.createElement('figure');
     fig.className = 'card';
 
     const img = document.createElement('img');
     img.loading = 'lazy';
-    img.alt = `${safeTitle} photo ${item.index}`;
-    img.src = item.src;
+    img.decoding = 'async';
+    if (idx === 0) img.fetchPriority = 'high';
+    img.alt = `${safeTitle} photo ${photoNumber}`;
+    img.src = `gallery-images/${category}/${fileName}`;
 
     const cap = document.createElement('figcaption');
-    cap.textContent = `${safeTitle} #${item.index}`;
+    cap.textContent = `${safeTitle} #${photoNumber}`;
 
     fig.appendChild(img);
     fig.appendChild(cap);

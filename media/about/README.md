@@ -1,1 +1,0 @@
-Add your about section image here as: about-main.jpg
