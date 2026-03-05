@@ -95,7 +95,7 @@ body {
 <body>
   <div class="page">
     <div class="topbar">
-      <a class="back-btn" href="./#gallery">Open Main Gallery</a>
+      <a class="back-btn" href="index.html#gallery" id="backToMainGallery">Open Main Gallery</a>
     </div>
 
     <h1 class="title" id="galleryTitle">Gallery</h1>
@@ -116,6 +116,16 @@ document.getElementById('galleryTitle').textContent = safeTitle;
 document.getElementById('gallerySubtitle').textContent = `Photos for ${safeTitle}.`;
 const grid = document.getElementById('photoGrid');
 const emptyState = document.getElementById('emptyState');
+const backToMainGallery = document.getElementById('backToMainGallery');
+
+if (backToMainGallery) {
+  backToMainGallery.addEventListener('click', e => {
+    e.preventDefault();
+    const target = new URL('index.html', window.location.href);
+    target.hash = 'gallery';
+    window.location.assign(target.toString());
+  });
+}
 
 const GALLERY_IMAGE_MANIFEST = {
   'architecture': ['1.JPG', '2.JPG', '3.JPG', '4.JPG', '5.jpg', '6.jpg', '7.jpg', '8.jpg'],
